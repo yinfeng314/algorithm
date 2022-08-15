@@ -57,7 +57,7 @@ struct Pig {
 //    return print(os, args...);
 //}
 
-int main() {
+int main(int n) {
 //    test();
 //    Pig pig;
 //    pig.print();

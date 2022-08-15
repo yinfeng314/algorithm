@@ -40,7 +40,7 @@ namespace alg {
             for (int i = 0; i < _size; ++i) {
                 _item[i] = other._item[i];
             }
-//            _item = (Item *) realloc(_item, _capacity * sizeof(Item));
+//            _item = (Comparable *) realloc(_item, _capacity * sizeof(Comparable));
 //            memcpy(_item,other._item);
             return *this;
         }
@@ -99,6 +99,10 @@ namespace alg {
             }
             os << '\n';
             return os;
+        }
+
+        size_t size(){
+            return _size;
         }
 
         void push_back(const Item &item) {    // 将item插入尾部
