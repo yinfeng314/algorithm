@@ -22,13 +22,11 @@ namespace alg {
             }
         }
 
-        vector(vector<Item> &&other) noexcept: _size(other._size), _capacity(other._capacity) {
+        vector(vector<Item> &&other) noexcept: _size(other._size), _capacity(other._capacity), _item(other._item) {
             // 移动构造函数
-            _item = new Item[_capacity];
-            for (int i = 0; i < _size; ++i) {
-                _item[i] = other._item[i];
-            }
-            delete other;
+            other._size = 0;
+            other._capacity = 0;
+            other._item = nullptr;
         }
 
         vector<Item> &operator=(const vector<Item> &other) {    // 拷贝赋值函数
@@ -46,13 +44,22 @@ namespace alg {
         }
 
         vector<Item> &operator=(vector<Item> &&other) noexcept {    // 移动赋值函数
-            _size = other._size;
-            _capacity = other._capacity;
-            std::move(_item, other._item);
+            if (*this != &other) {
+                _size = other._size;
+                other._size = 0;
+                _capacity = other._capacity;
+                other._capacity = 0;
+                delete[] _item;
+                _item = other._item;
+                other._item = nullptr;
+            }
             return *this;
         }
 
-        ~vector() { delete[] _item; }
+        ~vector() {
+            delete[] _item;
+            _item = nullptr;
+        }
 
         // -------------------------- 其他构造函数 ------------------------
         explicit vector(size_t size, const Item &item) : _size(size), _capacity(size + kDefaultCapacity) {
@@ -84,7 +91,7 @@ namespace alg {
 
         };
 
-        class OutOfRange{
+        class OutOfRange {
 
         };
 
@@ -101,7 +108,7 @@ namespace alg {
             return os;
         }
 
-        size_t size(){
+        size_t size() {
             return _size;
         }
 

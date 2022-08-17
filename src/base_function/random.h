@@ -7,10 +7,10 @@
 #include <random>
 #include "vector.h"
 namespace alg {
-    template<typename Item>
-    vector<Item> random_vector() {
-        if (Item() == int())
-            return vector<int>();
-    }
+//    template<typename Item>
+//    vector<Item> random_vector() {
+//        if (Item() == int())
+//            return vector<int>();
+//    }
 }
 #endif //ALGORITHM_RANDOM_H
