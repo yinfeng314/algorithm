@@ -3,7 +3,6 @@
 //
 #include <iostream>
 #include "sort_algorithm.h"
-#include <vector>
 
 using namespace alg;
 using std::cout;
@@ -18,10 +17,10 @@ int main() {
     vector<int> c = {1, 2, -2, 9, 10};
     Sort<int>::bubble(c);
     cout << c;
-    std::vector<int> d = {1, 2, -2, -10};
+    vector<int> d = {1, 2, -2, -10};
     Sort<int>::mergeUB(d);
-    for (int i : d) {
-        cout << i << ' ';
-    }
+    cout << d;
+//    throw std::invalid_argument("");
+//    throw std::bad_alloc();
     return 0;
 }

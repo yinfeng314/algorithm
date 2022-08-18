@@ -10,11 +10,11 @@
 
 namespace alg {
     template<typename Comparable>
-
     class Sort {    // 排序算法
     public:
         // 选择排序
         static void selection(vector<Comparable> &a) {
+            if (is_sorted(a)) return;
             int N = a.size();
             for (int i = 0; i < N; ++i) {
                 int min = i;
@@ -56,22 +56,9 @@ namespace alg {
             mergeUB(aux, a, 0, a.size() - 1);
         }
 
-        static void mergeUB(std::vector<Comparable> &a) {
-            std::vector<Comparable> aux(a.size(), Comparable());
-            mergeUB(aux, a, 0, a.size() - 1);
-        }
-
     private:
         // 归并排序私有接口
         static void mergeUB(vector<Comparable> &aux, vector<Comparable> &a, int lo, int hi) {
-            if (hi <= lo) return;
-            int mid = lo + (hi - lo) / 2;
-            mergeUB(aux, a, lo, mid);
-            mergeUB(aux, a, mid + 1, hi);
-            mergeUB_base(aux, a, lo, mid, hi);
-        }
-
-        static void mergeUB(std::vector<Comparable> &aux, std::vector<Comparable> &a, int lo, int hi) {
             if (hi <= lo) return;
             int mid = lo + (hi - lo) / 2;
             mergeUB(aux, a, lo, mid);
@@ -86,35 +73,14 @@ namespace alg {
                 aux[k] = a[k];
             }
             for (int k = lo; k <= hi; ++k) {    // 将aux通过双指针回填到a中
-//               if (i > mid) a[k] = aux[j++];
-//               else if (j > hi) a[k] = aux[i++];
-//               else if (less(aux[i], aux[j])) a[k] = aux[i++];
-//               else a[k] = aux[j++];
                 if (i > mid || less(aux[j], aux[i]))
                     a[k] = aux[j++];
                 else a[k] = aux[i++];
             }
         }
 
-        static void mergeUB_base(std::vector<Comparable> &aux, std::vector<Comparable> &a, int lo, int mid, int hi) {
-            int i = lo, j = mid + 1;
-            for (int k = lo; k <= hi; ++k) {    // 拷贝未排序的数组
-                aux[k] = a[k];
-            }
-            for (int k = lo; k <= hi; ++k) {    // 将aux通过双指针回填到a中
-//               if (i > mid) a[k] = aux[j++];
-//               else if (j > hi) a[k] = aux[i++];
-//               else if (less(aux[i], aux[j])) a[k] = aux[i++];
-//               else a[k] = aux[j++];
-                if (i <= mid && j <= hi){
-                    a[k] = aux[(less(aux[i],aux[j])?(i++):(j++))];
-                }else if (i > mid) a[k] = aux[j++];
-                else a[k] = aux[i++];
-            }
-        }
-
         // 基础函数
-        static bool less(Comparable v, Comparable w) {    // 使用的类型必须重载<运算符
+        static bool less(const Comparable v, const Comparable w) {    // 使用的类型必须重载<运算符
             return v < w;
         }
 
@@ -124,7 +90,7 @@ namespace alg {
             a[j] = t;
         }
 
-        static bool is_sorted(const vector<Comparable> &a) {
+        static bool is_sorted(vector<Comparable> &a) {
             for (int i = 0; i < a.size(); ++i) {
                 if (less(a[i], a[i + 1]))return false;
             }

@@ -7,6 +7,9 @@
 
 #include <ostream>
 
+using std::ostream;
+using std::initializer_list;
+
 namespace alg {
     template<typename Item>
     class vector {    // RAII(Resource Acquisition Is Initialization)
@@ -78,7 +81,7 @@ namespace alg {
             }
         }
 
-        vector(std::initializer_list<Item> il) : _size(il.size()), _capacity(_size + kDefaultCapacity) {
+        vector(initializer_list<Item> il) : _size(il.size()), _capacity(_size + kDefaultCapacity) {
             _item = new Item[_size];
             size_t i = 0;
             for (auto item: il) {
@@ -87,20 +90,19 @@ namespace alg {
         }
 
         // -------------------------- 迭代器实现 --------------------------
-        class iterator {
-
-        };
-
-        class OutOfRange {
-
-        };
 
         // 公有函数接口
         Item &operator[](size_t index) {
             return _item[index];
         }
 
-        friend std::ostream &operator<<(std::ostream &os, const vector<Item> &v) {
+        Item &at(size_t index) {
+            if (index >= _size)
+                throw std::out_of_range("Array subscript out of range");
+            return _item[index];
+        }
+
+        friend ostream &operator<<(ostream &os, const vector<Item> &v) {
             for (size_t i = 0; i < v._size; ++i) {
                 os << v._item[i] << ' ';
             }
@@ -118,9 +120,10 @@ namespace alg {
         }
 
         void push_back(const vector<Item> &v) {    // 将vector插入尾部
+            if (v._size == 0) return;
             if (_size + v._size >= _capacity) resize(2 * (_capacity + v._capacity));
             for (size_t i = _size; i < _size + v._size; ++i) {
-                _item[i] = v._item[i];
+                _item[i] = v._item[i - _size];
             }
             _size = _size + v._size;
         }
@@ -135,7 +138,7 @@ namespace alg {
         }
 
         Item &pop_back() {    // 删除元素
-            if (_size <= 0) throw OutOfRange();
+            if (_size <= 0) throw std::out_of_range("");
             return _item[_size--];
         }
 
