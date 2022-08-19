@@ -10,8 +10,33 @@
 
 namespace alg {
     template<typename Comparable>
-    class Sort {    // 排序算法
+    class sort {    // 排序算法，构造函数默认调用快速排序，也可以指定其他排序算法
     public:
+        // 构造函数调用快速排序
+        explicit sort(vector<Comparable> &a, int index = 6) {
+            switch (index) {
+                case 1:
+                    selection(a);
+                case 2:
+                    insertion(a);
+                case 3:
+                    bubble(a);
+                case 4:
+                    shell(a);
+                case 5:
+                    mergeUB(a);
+                case 6:
+                    quick(a);
+                default:
+                    break;
+            }
+        }
+
+        // 重载为函数类
+        void operator()(vector<Comparable> &a) {
+            quick(a);
+        }
+
         // 选择排序
         static void selection(vector<Comparable> &a) {
             if (is_sorted(a)) return;
@@ -50,10 +75,37 @@ namespace alg {
             }
         }
 
+        // 希尔排序
+        static void shell(vector<Comparable> &a) {
+            int N = a.size();
+            int h = 1;
+            while (h < N / 3) h = 3 * h + 1;    // 1, 4, 13, 40, ...
+            while (h >= 1) {
+                for (int i = 0; i < N; ++i) {
+                    for (int j = i; j >= h && less(a[j], a[j - h]); ++j) {
+                        exch(a, j, j - h);
+                    }
+                    h /= 3;
+                }
+            }
+        }
+
         // 归并排序
         static void mergeUB(vector<Comparable> &a) {
             vector<Comparable> aux(a.size(), Comparable());
             mergeUB(aux, a, 0, a.size() - 1);
+        }
+
+        // 快速排序
+        static void quick(vector<Comparable> &a) {
+            quick(a, 0, a.size() - 1);
+        }
+
+        static bool is_sorted(vector<Comparable> &a) {
+            for (int i = 0; i < a.size(); ++i) {
+                if (less(a[i], a[i + 1]))return false;
+            }
+            return true;
         }
 
     private:
@@ -73,10 +125,33 @@ namespace alg {
                 aux[k] = a[k];
             }
             for (int k = lo; k <= hi; ++k) {    // 将aux通过双指针回填到a中
-                if (i > mid || less(aux[j], aux[i]))
-                    a[k] = aux[j++];
+                if (i <= mid && j <= hi)
+                    a[k] = aux[(less(aux[i], aux[j])) ? i++ : j++];
+                else if (i > mid) a[k] = aux[j++];
                 else a[k] = aux[i++];
             }
+        }
+
+        // 快速排序私有接口
+        static void quick(vector<Comparable> &a, int lo, int hi) {
+            if (hi <= lo) return;
+            int j = partition(a, lo, hi);
+            quick(a, lo, j - 1);
+            quick(a, j + 1, hi);
+        }
+
+        // 快速排序的切分
+        static int partition(vector<Comparable> &a, int lo, int hi) {
+            int i = lo, j = hi + 1;
+            Comparable v = a[lo];
+            while (true) {
+                while (less(a[++i], v)) if (i == hi) break;
+                while (less(v, a[--j])) if (j == lo) break;
+                if (i >= j) break;
+                exch(a, i, j);
+            }
+            exch(a, lo, j);
+            return j;
         }
 
         // 基础函数
@@ -88,13 +163,6 @@ namespace alg {
             Comparable t = a[i];
             a[i] = a[j];
             a[j] = t;
-        }
-
-        static bool is_sorted(vector<Comparable> &a) {
-            for (int i = 0; i < a.size(); ++i) {
-                if (less(a[i], a[i + 1]))return false;
-            }
-            return true;
         }
     };
 }

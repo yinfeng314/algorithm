@@ -6,6 +6,7 @@
 #define ALGORITHM_VECTOR_H
 
 #include <ostream>
+#include "base.h"
 
 using std::ostream;
 using std::initializer_list;
@@ -15,7 +16,8 @@ namespace alg {
     class vector {    // RAII(Resource Acquisition Is Initialization)
     public:
         // -----------------------------  基础函数  -----------------------------
-        explicit vector(size_t capacity = 0) : _item(nullptr), _size(0), _capacity(capacity) {}
+        explicit vector(size_t capacity = _const_capacity) :
+                _item(new Item[capacity]), _size(0), _capacity(capacity) {}
 
         vector(const vector<Item> &other) :    // 拷贝构造函数
                 _size(other._size), _capacity(other._capacity) {
@@ -61,11 +63,10 @@ namespace alg {
 
         ~vector() {
             delete[] _item;
-            _item = nullptr;
         }
 
         // -------------------------- 其他构造函数 ------------------------
-        explicit vector(size_t size, const Item &item) : _size(size), _capacity(size + kDefaultCapacity) {
+        explicit vector(size_t size, const Item &item) : _size(size), _capacity(size + _const_capacity) {
             // 使用特定参数构造vector
             _item = new Item[_capacity];
             for (size_t i = 0; i < _size; ++i) {
@@ -81,8 +82,8 @@ namespace alg {
             }
         }
 
-        vector(initializer_list<Item> il) : _size(il.size()), _capacity(_size + kDefaultCapacity) {
-            _item = new Item[_size];
+        vector(initializer_list <Item> il) : _size(il.size()), _capacity(_size + _const_capacity) {
+            _item = new Item[_capacity];
             size_t i = 0;
             for (auto item: il) {
                 _item[i++] = item;
@@ -92,17 +93,17 @@ namespace alg {
         // -------------------------- 迭代器实现 --------------------------
 
         // 公有函数接口
-        Item &operator[](size_t index) {
+        Item &operator[](size_t index) {    // 访问
             return _item[index];
         }
 
-        Item &at(size_t index) {
+        Item &at(size_t index) {    // 访问-可抛出异常
             if (index >= _size)
                 throw std::out_of_range("Array subscript out of range");
             return _item[index];
         }
 
-        friend ostream &operator<<(ostream &os, const vector<Item> &v) {
+        friend ostream &operator<<(ostream &os, const vector<Item> &v) {    // 输出
             for (size_t i = 0; i < v._size; ++i) {
                 os << v._item[i] << ' ';
             }
@@ -110,31 +111,34 @@ namespace alg {
             return os;
         }
 
-        size_t size() {
-            return _size;
+        size_t size() { return _size; }
+
+        size_t capacity() { return _capacity; }
+
+        bool empty() { return _size == 0; }
+
+        void insert(size_t index, const Item &item) {    // 插入元素
+            if (index >= _size) return;
+            if (_size == _capacity) reserve(2 * _capacity);
+            for (size_t i = _size; i > index; --i) {
+                _item[i] = _item[i - 1];
+            }
+            _item[index] = item;
+            _size++;
         }
 
         void push_back(const Item &item) {    // 将item插入尾部
-            if (_size >= _capacity) resize(2 * _capacity);
+            if (_size == _capacity) reserve(2 * _capacity);
             _item[_size++] = item;
         }
 
         void push_back(const vector<Item> &v) {    // 将vector插入尾部
             if (v._size == 0) return;
-            if (_size + v._size >= _capacity) resize(2 * (_capacity + v._capacity));
+            if (_size + v._size >= _capacity) reserve(2 * (_capacity + v._capacity));
             for (size_t i = _size; i < _size + v._size; ++i) {
                 _item[i] = v._item[i - _size];
             }
             _size = _size + v._size;
-        }
-
-        void insert(size_t index, const Item &item) {    // 插入元素
-            if (index >= _size) return;
-            if (_size >= _capacity) resize(2 * _capacity);
-            for (size_t i = _size; i > index; --i) {
-                _item[i] = _item[i - 1];
-            }
-            _size++;
         }
 
         Item &pop_back() {    // 删除元素
@@ -149,18 +153,25 @@ namespace alg {
             return _size;
         }
 
-        void resize(size_t capacity) {    // 改变vector长度
-            if (_capacity == capacity) return;
+        void reserve(size_t capacity) {    // 改变vector长度
+            if (_capacity >= capacity) return;
+            _capacity = capacity;
+//            Item* tmp = new Item[_capacity];
+//            for (size_t i = 0; i < _size; ++i) {
+//                tmp[i] = _item[i];
+//            }
+//            delete[] _item;
+//            _item = tmp;
             Item *tmp = _item;
-            _item = new Item[_capacity = capacity];
-            for (size_t i = 0; i < _size; ++i) {
+            _item = new Item[_capacity];
+            for (int i = 0; i < _size; ++i) {
                 _item[i] = tmp[i];
             }
-            delete tmp;
+            delete[] tmp;
         }
 
     private:
-        const size_t kDefaultCapacity = 10;
+        const static size_t _const_capacity = 10;
         Item *_item;
         size_t _size;
         size_t _capacity;
