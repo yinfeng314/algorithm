@@ -82,7 +82,7 @@ namespace alg {
             while (h < N / 3) h = 3 * h + 1;    // 1, 4, 13, 40, ...
             while (h >= 1) {
                 for (int i = 0; i < N; ++i) {
-                    for (int j = i; j >= h && less(a[j], a[j - h]); ++j) {
+                    for (int j = i; j >= h && less(a[j], a[j - h]); j -= h) {
                         exch(a, j, j - h);
                     }
                     h /= 3;
@@ -94,6 +94,16 @@ namespace alg {
         static void mergeUB(vector<Comparable> &a) {
             vector<Comparable> aux(a.size(), Comparable());
             mergeUB(aux, a, 0, a.size() - 1);
+        }
+
+        static void mergeBU(vector<Comparable> &a) {
+            int N = a.size();
+            vector<Comparable> aux(N, Comparable());
+            for (int sz = 1; sz < N; sz *= 2) {
+                for (int lo = 0; lo < N - sz; lo += 2 * sz) {
+                    mergeUB_base(aux, a, lo, lo + sz - 1, std::min(lo + 2 * sz - 1, N - 1));
+                }
+            }
         }
 
         // 快速排序
