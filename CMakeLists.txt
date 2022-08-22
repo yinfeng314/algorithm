@@ -10,6 +10,7 @@ add_executable(random_test test/random_test.cpp src/base_function/random.h)
 add_executable(chrono_test test/chrono_test.cpp src/base_function/chrono.h)
 add_executable(vector_test test/vector_test.cpp src/data_structure/vector.h)
 add_executable(list_test test/list_test.cpp src/data_structure/list.h)
+add_executable(forward_list_test test/forward_list_test.cpp src/data_structure/forward_list.h)
 add_executable(sort_test test/sort_test.cpp src/sort_algorithm/sort_algorithm.h)
 
 include_directories(src/data_structure)
